@@ -1,26 +1,51 @@
-@top Program { expression* }
+@top Program { expr+ }
 
-@skip { space | LineComment }
-
-expression {
-  Identifier |
-  String |
-  Boolean |
-  Application { "(" expression* ")" }
+expr { 
+  String | RegExp | Atom | List
 }
+
+List { 
+  popen expr* pclose
+}
+
+// BlockComment {
+//   blockCommentOpen expr* pclose
+// }
+
+@skip { spaces | newline | LineComment }
 
 @tokens {
-  Identifier { $[a-zA-Z_\-0-9]+ }
+  escape {
+    "\\" ("x" hex hex | "u" ("{" hex+ "}" | hex hex hex hex) | ![xu])
+  }
 
-  String { '"' (!["\\] | "\\" _)* '"' }
+  Atom { !["'();\u0009 \u000b\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000\ufeff\r\n\u2028\u2029] ![)\u0009 \u000b\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000\ufeff\r\n\u2028\u2029]* }
 
-  Boolean { "#t" | "#f" }
+  @precedence { spaces, newline, RegExp, String, popen, pclose, LineComment, Atom }
+
+  hex { @digit | $[a-fA-F] }
+  stringContentSingle { ![\\\n']+ }
+  stringContentDouble { ![\\\n"]+ }
+
+  string {
+    '"' (stringContentDouble | escape)* ('"' | "\n") |
+    "'" (stringContentSingle | escape)* ("'" | "\n")
+  }
+
+  String { string }
+
+  RegExp { "/" (![/\\\n[] | "\\" ![\n] | "[" (![\n\\\]] | "\\" ![\n])* "]")+ ("/" $[gimsuy]*)? }
+  popen { "(" }
+  pclose { ")" }
+  // Quote { "`" } 
+  // Unquote { "," }
+  // Spread { "..." }
+  // blockCommentOpen { "(;" }
 
   LineComment { ";" ![\n]* }
+  // @precedence { blockCommentOpen, LineComment }
 
-  space { $[ \t\n\r]+ }
-
-  "(" ")"
+  spaces { $[\u0009 \u000b\u00a0\u1680\u2000-\u200a\u202f\u205f\u3000\ufeff]+ }
+  newline{ $[\r\n\u2028\u2029] }
 }
 
-@detectDelim

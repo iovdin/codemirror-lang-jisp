@@ -1,41 +1,90 @@
-# Booleans
+# Number
 
-#t
-#f
-
-==>
-
-Program(Boolean, Boolean)
-
-# Identifiers
-
-one
-Two_Three
+0
 
 ==>
 
-Program(Identifier, Identifier)
+Program(Atom)
 
-# Strings
+# Empty list
 
-"hello"
-"one\"\\two"
+()
 
-==>
+==> 
 
-Program(String, String)
+Program(List)
 
-# Applications
+# Atom
 
-(begin
-  (when #t
-    (print (concat "hello" " " "world")))
-  (print "DONE"))
+idenA_"
 
 ==>
 
-Program(Application(
-  Identifier,
-  Application(Identifier, Boolean, Application(
-    Identifier, Application(Identifier, String, String, String)))
-  Application(Identifier, String)))
+Program(Atom)
+
+# String "
+
+"String"
+
+==>
+
+Program(String)
+
+# String '
+
+'String'
+
+==>
+
+Program(String)
+
+# RegExp
+
+/asdf/gmi
+
+==>
+
+Program(RegExp)
+
+# List with an Atom
+
+(a)
+
+==>
+
+Program(List(Atom))
+
+# List with few elements
+
+(a 1 b
+  (sublist 1 "a"))
+
+==>
+
+Program(List(Atom, Atom, Atom, List(Atom, Atom, String)))
+
+# Line Comment
+
+; a comment (hello world)
+
+a
+==>
+
+Program(LineComment, Atom)
+
+# Test div-"abc", a[b].c["d"].e
+
+div-"abc" 
+
+a[b].c["d"].e
+==>
+
+Program(Atom, Atom)
+
+# Quote Unquote Spread
+
+(list ,a ...b)
+
+==>
+
+Program(List(Atom, Atom, Atom))
